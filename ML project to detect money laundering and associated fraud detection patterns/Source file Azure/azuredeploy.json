@@ -1,0 +1,1685 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vulnerabilityAssessments_Default_storageContainerPath": {
+            "type": "SecureString"
+        },
+        "servers_scorpion_name": {
+            "defaultValue": "scorpion",
+            "type": "String"
+        },
+        "virtualMachines_scorpion_name": {
+            "defaultValue": "scorpion",
+            "type": "String"
+        },
+        "vaults_scorpion2920531103_name": {
+            "defaultValue": "scorpion2920531103",
+            "type": "String"
+        },
+        "networkInterfaces_scorpion260_name": {
+            "defaultValue": "scorpion260",
+            "type": "String"
+        },
+        "publicIPAddresses_scorpion_ip_name": {
+            "defaultValue": "scorpion-ip",
+            "type": "String"
+        },
+        "components_scorpion4438471690_name": {
+            "defaultValue": "scorpion4438471690",
+            "type": "String"
+        },
+        "virtualNetworks_Hackathon_vnet_name": {
+            "defaultValue": "Hackathon-vnet",
+            "type": "String"
+        },
+        "networkSecurityGroups_scorpion_nsg_name": {
+            "defaultValue": "scorpion-nsg",
+            "type": "String"
+        },
+        "storageAccounts_scorpion5887605613_name": {
+            "defaultValue": "scorpion5887605613",
+            "type": "String"
+        },
+        "workspaces_scorpion_name": {
+            "defaultValue": "scorpion",
+            "type": "String"
+        },
+        "containerGroups_rankingfinalmodel_name": {
+            "defaultValue": "rankingfinalmodel",
+            "type": "String"
+        },
+        "actionGroups_Application_Insights_Smart_Detection_name": {
+            "defaultValue": "Application Insights Smart Detection",
+            "type": "String"
+        },
+        "registries_68c497cada0f438d93faf710ef565cab_name": {
+            "defaultValue": "68c497cada0f438d93faf710ef565cab",
+            "type": "String"
+        },
+        "smartdetectoralertrules_failure_anomalies___scorpion4438471690_name": {
+            "defaultValue": "failure anomalies - scorpion4438471690",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "apiVersion": "2019-12-01",
+            "name": "[parameters('containerGroups_rankingfinalmodel_name')]",
+            "location": "canadacentral",
+            "properties": {
+                "sku": "Standard",
+                "containers": [
+                    {
+                        "name": "azureml-init-aci",
+                        "properties": {
+                            "image": "mcr.microsoft.com/azureml/aci-init-container:20200602",
+                            "ports": [],
+                            "environmentVariables": [
+                                {
+                                    "name": "SERVICE_NAME",
+                                    "value": "[parameters('containerGroups_rankingfinalmodel_name')]"
+                                },
+                                {
+                                    "name": "SUBSCRIPTION_ID",
+                                    "value": "dba54339-561a-4503-8e73-fa6a6dcfb7fc"
+                                },
+                                {
+                                    "name": "RESOURCE_GROUP",
+                                    "value": "Hackathon"
+                                },
+                                {
+                                    "name": "WORKSPACE_NAME",
+                                    "value": "scorpion"
+                                },
+                                {
+                                    "name": "MMS_REGION",
+                                    "value": "canadacentral"
+                                },
+                                {
+                                    "name": "AML_MODEL_DC_STORAGE",
+                                    "value": "DefaultEndpointsProtocol=https;AccountName=scorpion5887605613;AccountKey=H/FBfW3ForcFrohYwwtNXyacAQ7XaelM/6aLGNCWIGl0A/4maPA2f5LV0MFVidBZrx9PR+un75gm+QGQ1TuSxg==;EndpointSuffix=core.windows.net;"
+                                },
+                                {
+                                    "name": "INIT_CONTAINER_SIGNAL_FILE",
+                                    "value": "/tmp/aml_signal_root/init_complete.txt"
+                                },
+                                {
+                                    "name": "AML_INIT_CONFIG_LOCATION",
+                                    "value": "197ba7a3-3e1f-4e1a-b83d-10c3beb6704d"
+                                }
+                            ],
+                            "resources": {
+                                "requests": {
+                                    "memoryInGB": 0.5,
+                                    "cpu": 0.1
+                                }
+                            },
+                            "volumeMounts": [
+                                {
+                                    "name": "aci-mount-dir",
+                                    "mountPath": "/tmp/aml_mount_root",
+                                    "readOnly": false
+                                },
+                                {
+                                    "name": "aci-signal-dir",
+                                    "mountPath": "/tmp/aml_signal_root",
+                                    "readOnly": false
+                                },
+                                {
+                                    "name": "secretsvolume",
+                                    "mountPath": "/mnt/secrets",
+                                    "readOnly": true
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "[parameters('containerGroups_rankingfinalmodel_name')]",
+                        "properties": {
+                            "image": "viennaglobal.azurecr.io/azureml/azureml_3c326d7e0b5cf6df22dd5afcd5ecee03",
+                            "command": [
+                                "runsvdir",
+                                "/var/runit"
+                            ],
+                            "ports": [
+                                {
+                                    "port": 5001
+                                }
+                            ],
+                            "environmentVariables": [
+                                {
+                                    "name": "AML_APP_INSIGHTS_ENABLED",
+                                    "value": "false"
+                                },
+                                {
+                                    "name": "AML_MODEL_DC_STORAGE_ENABLED",
+                                    "value": "false"
+                                },
+                                {
+                                    "name": "SCORING_TIMEOUT_MS",
+                                    "value": "60000"
+                                },
+                                {
+                                    "name": "SERVICE_NAME",
+                                    "value": "[parameters('containerGroups_rankingfinalmodel_name')]"
+                                },
+                                {
+                                    "name": "SERVICE_ID",
+                                    "value": "d92892b1-b1e8-4483-9bfa-4add18993127"
+                                },
+                                {
+                                    "name": "WORKSPACE_NAME",
+                                    "value": "scorpion"
+                                },
+                                {
+                                    "name": "COMPUTE_NAME",
+                                    "value": "[parameters('containerGroups_rankingfinalmodel_name')]"
+                                },
+                                {
+                                    "name": "COMPUTE_TYPE",
+                                    "value": "ACI"
+                                },
+                                {
+                                    "name": "COMPUTE_LOCATION",
+                                    "value": "canadacentral"
+                                },
+                                {
+                                    "name": "AZUREML_MODEL_DIR",
+                                    "value": "azureml-models/AutoMLf8500fe7140/1"
+                                },
+                                {
+                                    "name": "EXAMPLE_ENV_VAR",
+                                    "value": "EXAMPLE_VALUE"
+                                }
+                            ],
+                            "resources": {
+                                "requests": {
+                                    "memoryInGB": 2,
+                                    "cpu": 1
+                                }
+                            },
+                            "volumeMounts": [
+                                {
+                                    "name": "aci-mount-dir",
+                                    "mountPath": "/var/azureml-app",
+                                    "readOnly": false
+                                },
+                                {
+                                    "name": "aci-signal-dir",
+                                    "mountPath": "/var/aml_signal_root",
+                                    "readOnly": true
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "azureml-fe-aci",
+                        "properties": {
+                            "image": "mcr.microsoft.com/azureml-aci-frontend:20200305",
+                            "ports": [
+                                {
+                                    "port": 443
+                                },
+                                {
+                                    "port": 80
+                                }
+                            ],
+                            "environmentVariables": [
+                                {
+                                    "name": "AuthEnabled",
+                                    "value": "False"
+                                },
+                                {
+                                    "name": "ScoringPort",
+                                    "value": "5001"
+                                },
+                                {
+                                    "name": "SslEnabled",
+                                    "value": "False"
+                                },
+                                {
+                                    "name": "SERVICE_NAME",
+                                    "value": "[parameters('containerGroups_rankingfinalmodel_name')]"
+                                },
+                                {
+                                    "name": "FRONTEND_IMAGE",
+                                    "value": "mcr.microsoft.com/azureml-aci-frontend:20200305"
+                                },
+                                {
+                                    "name": "SUBSCRIPTION_ID",
+                                    "value": "dba54339-561a-4503-8e73-fa6a6dcfb7fc"
+                                },
+                                {
+                                    "name": "RESOURCE_GROUP",
+                                    "value": "Hackathon"
+                                },
+                                {
+                                    "name": "WORKSPACE_NAME",
+                                    "value": "scorpion"
+                                },
+                                {
+                                    "name": "MMS_REGION",
+                                    "value": "canadacentral"
+                                },
+                                {
+                                    "name": "HAS_CURL",
+                                    "value": "true"
+                                }
+                            ],
+                            "resources": {
+                                "requests": {
+                                    "memoryInGB": 0.5,
+                                    "cpu": 0.1
+                                }
+                            },
+                            "volumeMounts": [
+                                {
+                                    "name": "secretsvolume",
+                                    "mountPath": "/mnt/secrets",
+                                    "readOnly": true
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "initContainers": [],
+                "imageRegistryCredentials": [
+                    {
+                        "server": "viennaglobal.azurecr.io",
+                        "username": "662175e9-dd60-4885-99b8-b93e9ab58645"
+                    }
+                ],
+                "ipAddress": {
+                    "ports": [
+                        {
+                            "port": 443
+                        },
+                        {
+                            "port": 80
+                        }
+                    ],
+                    "ip": "20.151.52.217",
+                    "type": "Public",
+                    "dnsNameLabel": "d92892b1-b1e8-4483-9bfa-4add18993127"
+                },
+                "osType": "Linux",
+                "volumes": [
+                    {
+                        "name": "secretsvolume",
+                        "secret": {}
+                    },
+                    {
+                        "name": "aci-mount-dir",
+                        "emptyDir": {}
+                    },
+                    {
+                        "name": "aci-signal-dir",
+                        "emptyDir": {}
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ContainerRegistry/registries",
+            "apiVersion": "2019-12-01-preview",
+            "name": "[parameters('registries_68c497cada0f438d93faf710ef565cab_name')]",
+            "location": "canadacentral",
+            "sku": {
+                "name": "Basic",
+                "tier": "Basic"
+            },
+            "properties": {
+                "adminUserEnabled": true,
+                "policies": {
+                    "quarantinePolicy": {
+                        "status": "disabled"
+                    },
+                    "trustPolicy": {
+                        "type": "Notary",
+                        "status": "disabled"
+                    },
+                    "retentionPolicy": {
+                        "days": 7,
+                        "status": "disabled"
+                    }
+                },
+                "encryption": {
+                    "status": "disabled"
+                },
+                "dataEndpointEnabled": false,
+                "publicNetworkAccess": "Enabled"
+            }
+        },
+        {
+            "type": "microsoft.insights/actionGroups",
+            "apiVersion": "2019-03-01",
+            "name": "[parameters('actionGroups_Application_Insights_Smart_Detection_name')]",
+            "location": "Global",
+            "properties": {
+                "groupShortName": "SmartDetect",
+                "enabled": true,
+                "emailReceivers": [],
+                "smsReceivers": [],
+                "webhookReceivers": [],
+                "itsmReceivers": [],
+                "azureAppPushReceivers": [],
+                "automationRunbookReceivers": [],
+                "voiceReceivers": [],
+                "logicAppReceivers": [],
+                "azureFunctionReceivers": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[parameters('components_scorpion4438471690_name')]",
+            "location": "canadacentral",
+            "kind": "web",
+            "properties": {
+                "Application_Type": "web",
+                "RetentionInDays": 90,
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2016-10-01",
+            "name": "[parameters('vaults_scorpion2920531103_name')]",
+            "location": "canadacentral",
+            "properties": {
+                "sku": {
+                    "family": "A",
+                    "name": "standard"
+                },
+                "tenantId": "8c28a924-4d79-4df1-bf3b-0806935efc1e",
+                "accessPolicies": [
+                    {
+                        "tenantId": "8c28a924-4d79-4df1-bf3b-0806935efc1e",
+                        "objectId": "795569a5-f685-48ab-89e8-0ae829250d44",
+                        "permissions": {
+                            "keys": [
+                                "all"
+                            ],
+                            "secrets": [
+                                "all"
+                            ],
+                            "certificates": [
+                                "all"
+                            ]
+                        }
+                    }
+                ],
+                "enabledForDeployment": false,
+                "enableSoftDelete": true
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-05-01",
+            "name": "[parameters('networkSecurityGroups_scorpion_nsg_name')]",
+            "location": "canadacentral",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "RDP",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 300,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-05-01",
+            "name": "[parameters('publicIPAddresses_scorpion_ip_name')]",
+            "location": "canadacentral",
+            "sku": {
+                "name": "Basic"
+            },
+            "properties": {
+                "ipAddress": "40.85.219.224",
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-05-01",
+            "name": "[parameters('virtualNetworks_Hackathon_vnet_name')]",
+            "location": "canadacentral",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/24"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "default",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false,
+                "enableVmProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2019-06-01-preview",
+            "name": "[parameters('servers_scorpion_name')]",
+            "location": "canadacentral",
+            "kind": "v12.0",
+            "properties": {
+                "administratorLogin": "[parameters('servers_scorpion_name')]",
+                "version": "12.0",
+                "publicNetworkAccess": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": "[parameters('storageAccounts_scorpion5887605613_name')]",
+            "location": "canadacentral",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "name": "[parameters('virtualMachines_scorpion_name')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_scorpion260_name'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_DS1_v2"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2016-Datacenter",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_scorpion_name'), '_OsDisk_1_4748f27c86c7432786ab81289c0d3cf3')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "StandardSSD_LRS",
+                            "id": "[resourceId('Microsoft.Compute/disks', concat(parameters('virtualMachines_scorpion_name'), '_OsDisk_1_4748f27c86c7432786ab81289c0d3cf3'))]"
+                        },
+                        "diskSizeGB": 127
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_scorpion_name')]",
+                    "adminUsername": "[parameters('virtualMachines_scorpion_name')]",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_scorpion260_name'))]"
+                        }
+                    ]
+                },
+                "licenseType": "Windows_Server"
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2016-10-01",
+            "name": "[concat(parameters('vaults_scorpion2920531103_name'), '/68c497ca-da0f-438d-93fa-f710ef565cab-1B-HMvJB6IE54NqorCeCQET6IYso8l8ppCbYxWSxES8')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('vaults_scorpion2920531103_name'))]"
+            ],
+            "properties": {
+                "attributes": {
+                    "enabled": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2016-10-01",
+            "name": "[concat(parameters('vaults_scorpion2920531103_name'), '/68c497ca-da0f-438d-93fa-f710ef565cab-DYJmWbtplAeOwSEQRHTTVPqZSh2-qHUwY4PmMD9JrTE')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('vaults_scorpion2920531103_name'))]"
+            ],
+            "properties": {
+                "attributes": {
+                    "enabled": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2016-10-01",
+            "name": "[concat(parameters('vaults_scorpion2920531103_name'), '/68c497ca-da0f-438d-93fa-f710ef565cab-esCOfWAehXLKv4ZHOqi0NHl1-qO0VwlWgLoPHAosr14')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('vaults_scorpion2920531103_name'))]"
+            ],
+            "properties": {
+                "attributes": {
+                    "enabled": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2016-10-01",
+            "name": "[concat(parameters('vaults_scorpion2920531103_name'), '/68c497ca-da0f-438d-93fa-f710ef565cab--FnJYyD6tyZFhvRbtRMnLp7gEI59-NK7yUq29Wjw0j8')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('vaults_scorpion2920531103_name'))]"
+            ],
+            "properties": {
+                "attributes": {
+                    "enabled": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2016-10-01",
+            "name": "[concat(parameters('vaults_scorpion2920531103_name'), '/68c497ca-da0f-438d-93fa-f710ef565cab-hiKhX4WDnI2HJKeeJzt1VJ1tUytovhpVOCeo2dzo2So')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('vaults_scorpion2920531103_name'))]"
+            ],
+            "properties": {
+                "attributes": {
+                    "enabled": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2016-10-01",
+            "name": "[concat(parameters('vaults_scorpion2920531103_name'), '/68c497ca-da0f-438d-93fa-f710ef565cab-IfOffk4YBCooCAPVL-1maOe-51zGDJ4HlVcd3Nf1W9s')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('vaults_scorpion2920531103_name'))]"
+            ],
+            "properties": {
+                "attributes": {
+                    "enabled": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2016-10-01",
+            "name": "[concat(parameters('vaults_scorpion2920531103_name'), '/68c497ca-da0f-438d-93fa-f710ef565cab-Odl46HGbDEtFEyfTlR2COOgO-hgB2T7YzatAfmb3RqA')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('vaults_scorpion2920531103_name'))]"
+            ],
+            "properties": {
+                "attributes": {
+                    "enabled": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2016-10-01",
+            "name": "[concat(parameters('vaults_scorpion2920531103_name'), '/68c497ca-da0f-438d-93fa-f710ef565cab-q7vt3a4HCj45UmTun55N8-sEPCYz2Yi2B5m5ifDnIfs')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('vaults_scorpion2920531103_name'))]"
+            ],
+            "properties": {
+                "attributes": {
+                    "enabled": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2016-10-01",
+            "name": "[concat(parameters('vaults_scorpion2920531103_name'), '/68c497ca-da0f-438d-93fa-f710ef565cab-QgG85nHDlh45MTpMrxx--t7NQ5hVpfQHCCiQxK2ZHIA')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('vaults_scorpion2920531103_name'))]"
+            ],
+            "properties": {
+                "attributes": {
+                    "enabled": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2016-10-01",
+            "name": "[concat(parameters('vaults_scorpion2920531103_name'), '/68c497ca-da0f-438d-93fa-f710ef565cab-sBD-jGyZnorPUkbgwP2GSOFttvoIIlRwt7FR8kw9aGs')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('vaults_scorpion2920531103_name'))]"
+            ],
+            "properties": {
+                "attributes": {
+                    "enabled": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2016-10-01",
+            "name": "[concat(parameters('vaults_scorpion2920531103_name'), '/68c497ca-da0f-438d-93fa-f710ef565cab-YYlkd8sb3F50L0fD4NWWcIV-UNzSWDw37YK4paHNSpg')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('vaults_scorpion2920531103_name'))]"
+            ],
+            "properties": {
+                "attributes": {
+                    "enabled": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.MachineLearningServices/workspaces/computes",
+            "apiVersion": "2020-09-01-preview",
+            "name": "[concat(parameters('workspaces_scorpion_name'), '/trainer')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('Microsoft.MachineLearningServices/workspaces', parameters('workspaces_scorpion_name'))]"
+            ],
+            "properties": {
+                "computeType": "AmlCompute",
+                "computeLocation": "canadacentral",
+                "properties": {
+                    "vmSize": "STANDARD_F2S_V2",
+                    "vmPriority": "Dedicated",
+                    "scaleSettings": {
+                        "maxNodeCount": 1,
+                        "minNodeCount": 0,
+                        "nodeIdleTimeBeforeScaleDown": "PT10S"
+                    },
+                    "remoteLoginPortPublicAccess": "Enabled",
+                    "osType": "Linux",
+                    "enableNodePublicIp": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2020-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_scorpion_nsg_name'), '/RDP')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_scorpion_nsg_name'))]"
+            ],
+            "properties": {
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 300,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2020-05-01",
+            "name": "[concat(parameters('virtualNetworks_Hackathon_vnet_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hackathon_vnet_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.0.0/24",
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Enabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_scorpion_name'), '/CreateIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_scorpion_name'), '/DbParameterization')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_scorpion_name'), '/DefragmentIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_scorpion_name'), '/DropIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_scorpion_name'), '/ForceLastGoodPlan')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/auditingPolicies",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_scorpion_name'), '/Default')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "auditingState": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/auditingSettings",
+            "apiVersion": "2017-03-01-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled",
+                "retentionDays": 0,
+                "auditActionsAndGroups": [],
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000",
+                "isStorageSecondaryKeyInUse": false,
+                "isAzureMonitorTargetEnabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases",
+            "apiVersion": "2019-06-01-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/db')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "sku": {
+                "name": "GP_S_Gen5",
+                "tier": "GeneralPurpose",
+                "family": "Gen5",
+                "capacity": 1
+            },
+            "kind": "v12.0,user,vcore,serverless",
+            "properties": {
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "maxSizeBytes": 69793218560,
+                "catalogCollation": "SQL_Latin1_General_CP1_CI_AS",
+                "zoneRedundant": false,
+                "readScale": "Disabled",
+                "readReplicaCount": 0,
+                "autoPauseDelay": 60,
+                "storageAccountType": "GRS",
+                "minCapacity": 0.5
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/auditingPolicies",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_scorpion_name'), '/master/Default')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "auditingState": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/auditingSettings",
+            "apiVersion": "2017-03-01-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled",
+                "retentionDays": 0,
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000",
+                "isAzureMonitorTargetEnabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/extendedAuditingSettings",
+            "apiVersion": "2017-03-01-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled",
+                "retentionDays": 0,
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000",
+                "isAzureMonitorTargetEnabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/geoBackupPolicies",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_scorpion_name'), '/master/Default')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "state": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",
+            "apiVersion": "2020-02-02-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_scorpion_name'), '/master/current')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "status": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
+            "apiVersion": "2017-03-01-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "recurringScans": {
+                    "isEnabled": false,
+                    "emailSubscriptionAdmins": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/encryptionProtector",
+            "apiVersion": "2015-05-01-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/current')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "kind": "servicemanaged",
+            "properties": {
+                "serverKeyName": "ServiceManaged",
+                "serverKeyType": "ServiceManaged"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/extendedAuditingSettings",
+            "apiVersion": "2017-03-01-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled",
+                "retentionDays": 0,
+                "auditActionsAndGroups": [],
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000",
+                "isStorageSecondaryKeyInUse": false,
+                "isAzureMonitorTargetEnabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/firewallRules",
+            "apiVersion": "2015-05-01-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/AllowAllWindowsAzureIps')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "startIpAddress": "0.0.0.0",
+                "endIpAddress": "0.0.0.0"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/firewallRules",
+            "apiVersion": "2015-05-01-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/ClientIPAddress_2020-09-23_09:20:20')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "startIpAddress": "99.246.15.61",
+                "endIpAddress": "99.246.15.61"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/keys",
+            "apiVersion": "2015-05-01-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/ServiceManaged')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "kind": "servicemanaged",
+            "properties": {
+                "serverKeyType": "ServiceManaged"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/securityAlertPolicies",
+            "apiVersion": "2020-02-02-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/vulnerabilityAssessments",
+            "apiVersion": "2018-06-01-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "recurringScans": {
+                    "isEnabled": false,
+                    "emailSubscriptionAdmins": true
+                },
+                "storageContainerPath": "[parameters('vulnerabilityAssessments_Default_storageContainerPath')]"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "cors": {
+                    "corsRules": [
+                        {
+                            "allowedOrigins": [
+                                "https://mlworkspace.azure.ai",
+                                "https://ml.azure.com",
+                                "https://*.ml.azure.com"
+                            ],
+                            "allowedMethods": [
+                                "GET",
+                                "HEAD"
+                            ],
+                            "maxAgeInSeconds": 1800,
+                            "exposedHeaders": [
+                                "*"
+                            ],
+                            "allowedHeaders": [
+                                "*"
+                            ]
+                        }
+                    ]
+                },
+                "deleteRetentionPolicy": {
+                    "enabled": false
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/queueServices",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/tableServices",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            }
+        },
+        {
+            "type": "microsoft.alertsmanagement/smartdetectoralertrules",
+            "apiVersion": "2019-06-01",
+            "name": "[parameters('smartdetectoralertrules_failure_anomalies___scorpion4438471690_name')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_scorpion4438471690_name'))]",
+                "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_Application_Insights_Smart_Detection_name'))]"
+            ],
+            "properties": {
+                "description": "Failure Anomalies notifies you of an unusual rise in the rate of failed HTTP requests or dependency calls.",
+                "state": "Enabled",
+                "severity": "Sev3",
+                "frequency": "PT1M",
+                "detector": {
+                    "id": "FailureAnomaliesDetector",
+                    "name": "Failure Anomalies",
+                    "description": "Detects if your application experiences an abnormal rise in the rate of HTTP requests or dependency calls that are reported as failed. The anomaly detection uses machine learning algorithms and occurs in near real time, therefore there's no need to define a frequency for this signal.<br/></br/>To help you triage and diagnose the problem, an analysis of the characteristics of the failures and related telemetry is provided with the detection. This feature works for any app, hosted in the cloud or on your own servers, that generates request or dependency telemetry - for example, if you have a worker role that calls <a class=\"ext-smartDetecor-link\" href=\\\"https://docs.microsoft.com/azure/application-insights/app-insights-api-custom-events-metrics#trackrequest\\\" target=\\\"_blank\\\">TrackRequest()</a> or <a class=\"ext-smartDetecor-link\" href=\\\"https://docs.microsoft.com/azure/application-insights/app-insights-api-custom-events-metrics#trackdependency\\\" target=\\\"_blank\\\">TrackDependency()</a>.<br/><br/><a class=\"ext-smartDetecor-link\" href=\\\"https://docs.microsoft.com/azure/azure-monitor/app/proactive-failure-diagnostics\\\" target=\\\"_blank\\\">Learn more about Failure Anomalies</a>",
+                    "supportedResourceTypes": [
+                        "ApplicationInsights"
+                    ]
+                },
+                "scope": [
+                    "[resourceId('microsoft.insights/components', parameters('components_scorpion4438471690_name'))]"
+                ],
+                "actionGroups": {
+                    "groupIds": [
+                        "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_Application_Insights_Smart_Detection_name'))]"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_scorpion_name'), '/db/CreateIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_scorpion_name'), 'db')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_scorpion_name'), '/db/DbParameterization')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_scorpion_name'), 'db')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_scorpion_name'), '/db/DefragmentIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_scorpion_name'), 'db')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_scorpion_name'), '/db/DropIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_scorpion_name'), 'db')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_scorpion_name'), '/db/ForceLastGoodPlan')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_scorpion_name'), 'db')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/auditingPolicies",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_scorpion_name'), '/db/Default')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_scorpion_name'), 'db')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "auditingState": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/auditingSettings",
+            "apiVersion": "2017-03-01-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/db/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_scorpion_name'), 'db')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled",
+                "retentionDays": 0,
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000",
+                "isAzureMonitorTargetEnabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/backupLongTermRetentionPolicies",
+            "apiVersion": "2017-03-01-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/db/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_scorpion_name'), 'db')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "weeklyRetention": "PT0S",
+                "monthlyRetention": "PT0S",
+                "yearlyRetention": "PT0S",
+                "weekOfYear": 0
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies",
+            "apiVersion": "2020-02-02-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/db/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_scorpion_name'), 'db')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "retentionDays": 7
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/extendedAuditingSettings",
+            "apiVersion": "2017-03-01-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/db/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_scorpion_name'), 'db')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled",
+                "retentionDays": 0,
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000",
+                "isAzureMonitorTargetEnabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/geoBackupPolicies",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_scorpion_name'), '/db/Default')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_scorpion_name'), 'db')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "state": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",
+            "apiVersion": "2020-02-02-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/db/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_scorpion_name'), 'db')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_scorpion_name'), '/db/current')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_scorpion_name'), 'db')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "status": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
+            "apiVersion": "2017-03-01-preview",
+            "name": "[concat(parameters('servers_scorpion_name'), '/db/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_scorpion_name'), 'db')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_scorpion_name'))]"
+            ],
+            "properties": {
+                "recurringScans": {
+                    "isEnabled": false,
+                    "emailSubscriptionAdmins": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default/azureml')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_scorpion5887605613_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "defaultEncryptionScope": "$account-encryption-key",
+                "denyEncryptionScopeOverride": false,
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default/azureml-blobstore-68c497ca-da0f-438d-93fa-f710ef565cab')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_scorpion5887605613_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "defaultEncryptionScope": "$account-encryption-key",
+                "denyEncryptionScopeOverride": false,
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default/azureml-metrics')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_scorpion5887605613_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "defaultEncryptionScope": "$account-encryption-key",
+                "denyEncryptionScopeOverride": false,
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default/revisions')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_scorpion5887605613_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "defaultEncryptionScope": "$account-encryption-key",
+                "denyEncryptionScopeOverride": false,
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default/snapshots')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_scorpion5887605613_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "defaultEncryptionScope": "$account-encryption-key",
+                "denyEncryptionScopeOverride": false,
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default/snapshotzips')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_scorpion5887605613_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "defaultEncryptionScope": "$account-encryption-key",
+                "denyEncryptionScopeOverride": false,
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default/automl-02e573c9-0e5e-4ad8-bd9a-3fb00e1f6af7')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccounts_scorpion5887605613_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "accessTier": "TransactionOptimized",
+                "shareQuota": 5120,
+                "enabledProtocols": "SMB"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default/automl-077d72a5-21ea-4b95-b0fc-fc35a3ecfcae')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccounts_scorpion5887605613_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "accessTier": "TransactionOptimized",
+                "shareQuota": 5120,
+                "enabledProtocols": "SMB"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default/automl-2654dec1-2fd8-4653-9b9b-6f166b260bda')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccounts_scorpion5887605613_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "accessTier": "TransactionOptimized",
+                "shareQuota": 5120,
+                "enabledProtocols": "SMB"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default/automl-8998dc6e-1341-4823-a4f6-b019a4390cc1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccounts_scorpion5887605613_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "accessTier": "TransactionOptimized",
+                "shareQuota": 5120,
+                "enabledProtocols": "SMB"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default/automl-8cbcbbe6-6d16-4f1c-bbbb-afd863605cf2')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccounts_scorpion5887605613_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "accessTier": "TransactionOptimized",
+                "shareQuota": 5120,
+                "enabledProtocols": "SMB"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default/automl-bc0ec236-6870-46d3-8e14-70e254237362')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccounts_scorpion5887605613_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "accessTier": "TransactionOptimized",
+                "shareQuota": 5120,
+                "enabledProtocols": "SMB"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default/automl-d66a8814-aae5-4934-8a68-912813a59964')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccounts_scorpion5887605613_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "accessTier": "TransactionOptimized",
+                "shareQuota": 5120,
+                "enabledProtocols": "SMB"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default/automl-f8500fe7-10cd-47ee-86a7-8335d7826279')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccounts_scorpion5887605613_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "accessTier": "TransactionOptimized",
+                "shareQuota": 5120,
+                "enabledProtocols": "SMB"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default/azureml-filestore-68c497ca-da0f-438d-93fa-f710ef565cab')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccounts_scorpion5887605613_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "accessTier": "TransactionOptimized",
+                "shareQuota": 5120,
+                "enabledProtocols": "SMB"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_scorpion5887605613_name'), '/default/code-391ff5ac-6576-460f-ba4d-7e03433c68b6')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccounts_scorpion5887605613_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]"
+            ],
+            "properties": {
+                "accessTier": "TransactionOptimized",
+                "shareQuota": 5120,
+                "enabledProtocols": "SMB"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-05-01",
+            "name": "[parameters('networkInterfaces_scorpion260_name')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_scorpion_ip_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_Hackathon_vnet_name'), 'default')]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_scorpion_nsg_name'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAddress": "10.0.0.4",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_scorpion_ip_name'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_Hackathon_vnet_name'), 'default')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_scorpion_nsg_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.MachineLearningServices/workspaces",
+            "apiVersion": "2020-09-01-preview",
+            "name": "[parameters('workspaces_scorpion_name')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]",
+                "[resourceId('Microsoft.ContainerRegistry/registries', parameters('registries_68c497cada0f438d93faf710ef565cab_name'))]",
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('vaults_scorpion2920531103_name'))]",
+                "[resourceId('microsoft.insights/components', parameters('components_scorpion4438471690_name'))]"
+            ],
+            "sku": {
+                "name": "Basic",
+                "tier": "Basic"
+            },
+            "identity": {
+                "principalId": "795569a5-f685-48ab-89e8-0ae829250d44",
+                "tenantId": "8c28a924-4d79-4df1-bf3b-0806935efc1e",
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "friendlyName": "[parameters('workspaces_scorpion_name')]",
+                "storageAccount": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_scorpion5887605613_name'))]",
+                "containerRegistry": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('registries_68c497cada0f438d93faf710ef565cab_name'))]",
+                "keyVault": "[resourceId('Microsoft.KeyVault/vaults', parameters('vaults_scorpion2920531103_name'))]",
+                "applicationInsights": "[resourceId('microsoft.insights/components', parameters('components_scorpion4438471690_name'))]",
+                "hbiWorkspace": false,
+                "allowPublicAccessWhenBehindVnet": false,
+                "discoveryUrl": "https://canadacentral.experiments.azureml.net/discovery"
+            }
+        }
+    ]
+}
